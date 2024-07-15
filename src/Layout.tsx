@@ -1,10 +1,8 @@
-import React, { lazy, ReactNode } from "react";
+import { ReactNode } from "react";
 import { Layout, theme } from "antd";
-import Title from "antd/es/typography/Title";
+import Title from "antd/es/typography/Title"
 import { ThemeMode } from "./Theme";
-
-const MoonOutlined = lazy(() => import("@ant-design/icons/MoonOutlined"));
-const SunOutlined = lazy(() => import("@ant-design/icons/SunOutlined"));
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 

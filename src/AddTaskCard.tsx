@@ -1,6 +1,6 @@
 import { CloseOutlined, SendOutlined } from "@ant-design/icons";
 import { Button, Card, Input, InputRef } from "antd";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export interface AddTaskCard {
 	onClose: () => void;
@@ -27,14 +27,14 @@ function AddTaskCard({
 	onSubmit,
 	task = defaultTaskData,
 }: AddTaskCard) {
-	const submitRef = useRef<HTMLButtonElement>(null);
+	const [isSubmitDisabled, setIsSubmitDisabled] = useState(!task.name.trim());
 	const nameRef = useRef<InputRef>(null);
 	const descriptionRef = useRef<InputRef>(null);
 
-	function computeButtonState(name: string) {
-		// if name then enable
-		if (submitRef?.current) submitRef.current.disabled = !name.trim();
-	}
+	useEffect(() => {
+		// Set initial state of the button based on the task name
+		setIsSubmitDisabled(!task.name.trim());
+	}, [task.name]);
 
 	const getNameValue = (): string => {
 		return nameRef.current?.input?.value?.trim() || "";
@@ -57,7 +57,8 @@ function AddTaskCard({
 	}
 
 	function handleNameChange() {
-		computeButtonState(getNameValue());
+		const nameValue = getNameValue();
+		setIsSubmitDisabled(!nameValue.trim());
 	}
 
 	return (
@@ -70,8 +71,7 @@ function AddTaskCard({
 					danger
 					type="primary"
 					onClick={handleSubmit}
-					disabled={!task.name.trim()} // initial state of the button
-					ref={submitRef}
+					disabled={isSubmitDisabled} // Updated to use state
 				>
 					<SendOutlined />
 				</Button>,
