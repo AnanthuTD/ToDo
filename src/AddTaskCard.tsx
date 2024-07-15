@@ -1,6 +1,6 @@
 import { CloseOutlined, SendOutlined } from "@ant-design/icons";
-import { Button, Card, Input } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { Button, Card, Input, InputRef } from "antd";
+import { useRef } from "react";
 
 export interface AddTaskCard {
 	onClose: () => void;
@@ -12,18 +12,7 @@ export interface TaskData {
 	name: string;
 	description: string;
 	id: number;
-   done: boolean;
-}
-
-function debounce(
-	func: (e: React.ChangeEvent<HTMLInputElement>) => void,
-	delay: number
-): (e: React.ChangeEvent<HTMLInputElement>) => void {
-	let timeoutId: number;
-	return (e: React.ChangeEvent<HTMLInputElement>) => {
-		clearTimeout(timeoutId);
-		timeoutId = window.setTimeout(() => func(e), delay);
-	};
+	done: boolean;
 }
 
 const defaultTaskData: TaskData = {
@@ -38,39 +27,41 @@ function AddTaskCard({
 	onSubmit,
 	task = defaultTaskData,
 }: AddTaskCard) {
-	const [taskData, setTaskData] = useState<TaskData>(task);
-	const [isSubmitDisabled, setSubmitDisabled] = useState(true);
+	const submitRef = useRef<HTMLButtonElement>(null);
+	const nameRef = useRef<InputRef>(null);
+	const descriptionRef = useRef<InputRef>(null);
 
-	const debouncedUpdateTaskName = useCallback(
-		() =>
-			debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-				setTaskData((prevData) => ({
-					...prevData,
-					name: e.target.value.trim(),
-				}));
-			}, 500),
-		[]
-	);
+	function computeButtonState(name: string) {
+		// if name then enable
+		if (submitRef?.current) submitRef.current.disabled = !name.trim();
+	}
 
-	const debouncedUpdateTaskDesc = useCallback(
-		() =>
-			debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-				setTaskData((prevData) => ({
-					...prevData,
-					description: e.target.value.trim(),
-				}));
-			}, 500),
-		[]
-	);
+	// initially to calculate button disabled or not if task is given as props ( Editing )
+	computeButtonState(task.name);
 
-	useEffect(() => {
-		setSubmitDisabled(!taskData.name.trim());
-	}, [taskData]);
+	const getNameValue = (): string => {
+		return nameRef.current?.input?.value?.trim() || "";
+	};
 
-	function handleSubmit(){
-      onSubmit(taskData);
-      onClose();
-   }
+	const getDescriptionValue = (): string => {
+		return descriptionRef.current?.input?.value?.trim() || "";
+	};
+
+	function handleSubmit() {
+		const taskData: TaskData = {
+			...task,
+			name: getNameValue(),
+			description: getDescriptionValue(),
+		};
+		onSubmit(taskData);
+
+		// close after submit
+		onClose();
+	}
+
+	function handleNameChange() {
+		computeButtonState(getNameValue());
+	}
 
 	return (
 		<Card
@@ -82,7 +73,8 @@ function AddTaskCard({
 					danger
 					type="primary"
 					onClick={handleSubmit}
-					disabled={isSubmitDisabled}
+					disabled={!task.name.trim()} // initial state of the button
+					ref={submitRef}
 				>
 					<SendOutlined />
 				</Button>,
@@ -92,13 +84,14 @@ function AddTaskCard({
 				<Input
 					className="border-none outline-none placeholder-gray-400 placeholder:font-medium"
 					placeholder="Task name"
-					onChange={debouncedUpdateTaskName()}
+					ref={nameRef}
+					onChange={handleNameChange}
 					defaultValue={task.name}
 				/>
 				<Input
 					className="border-none outline-none placeholder-gray-400 placeholder:font-thin"
 					placeholder="Description"
-					onChange={debouncedUpdateTaskDesc()}
+					ref={descriptionRef}
 					defaultValue={task.description}
 				/>
 			</div>
