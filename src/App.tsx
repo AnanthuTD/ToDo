@@ -1,8 +1,12 @@
-import { Button, Divider, Radio } from "antd";
-import { useState } from "react";
-import AddTaskCard, { TaskData } from "./AddTaskCard";
+import { Button, Divider } from "antd";
+import { lazy, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import ToDoList from "./ToDoList";
+import type { TaskData } from "./AddTaskCard";
+
+const AddTaskCard = lazy(() => import("./AddTaskCard"));
+const ToDoList = lazy(() => import("./ToDoList"));
+const Radio = lazy(() => import("antd/es/radio/radio"));
+const RadioGroup = lazy(() => import("antd/es/radio/group"));
 
 export type Filters = "all" | "completed" | "pending";
 
@@ -72,25 +76,30 @@ function App() {
 
 			<Divider> To-Do's </Divider>
 
-			<div className="mb-3">
-				<Radio.Group
-					onChange={(e) => onFilterChange(e.target.value)}
-					defaultValue={filter}
-				>
-					<Radio value={"all"}>All</Radio>
-					<Radio value={"pending"}>Pending</Radio>
-					<Radio value={"completed"}>Finished</Radio>
-				</Radio.Group>
-			</div>
+			{taskList.length ? (
+				<>
+					{/* filter options */}
+					<div className="mb-3">
+						<RadioGroup
+							onChange={(e) => onFilterChange(e.target.value)}
+							defaultValue={filter}
+						>
+							<Radio value={"all"}>All</Radio>
+							<Radio value={"pending"}>Pending</Radio>
+							<Radio value={"completed"}>Finished</Radio>
+						</RadioGroup>
+					</div>
 
-				<ToDoList
-					taskList={taskList}
-					onSubmit={onSubmit}
-					onDeleteTask={onDeleteTask}
-					filter={filter}
-					className="space-y-3"
-				/>
-		
+					{/* todo list */}
+					<ToDoList
+						taskList={taskList}
+						onSubmit={onSubmit}
+						onDeleteTask={onDeleteTask}
+						filter={filter}
+						className="space-y-3"
+					/>
+				</>
+			) : null}
 		</>
 	);
 }

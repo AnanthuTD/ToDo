@@ -1,7 +1,10 @@
-import React, { ReactNode } from "react";
-import { Layout, theme, Typography } from "antd";
-import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+import React, { lazy, ReactNode } from "react";
+import { Layout, theme } from "antd";
+import Title from "antd/es/typography/Title";
 import { ThemeMode } from "./Theme";
+
+const MoonOutlined = lazy(() => import("@ant-design/icons/MoonOutlined"));
+const SunOutlined = lazy(() => import("@ant-design/icons/SunOutlined"));
 
 const { Header, Content } = Layout;
 
@@ -47,7 +50,7 @@ const ToDoLayout: React.FC<ToDoLayoutProps> = ({
 	return (
 		<Layout style={{ height: "100vh" }}>
 			<HeaderComponent themeMode={themeMode}>
-				<Typography.Title level={3}>To-Do</Typography.Title>
+				<Title level={3}>To-Do</Title>
 				<div
 					onClick={() =>
 						setThemeMode(themeMode === "light" ? "dark" : "light")

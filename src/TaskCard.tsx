@@ -1,8 +1,12 @@
-import { Card, Checkbox } from "antd";
-import AddTaskCard, { TaskData } from "./AddTaskCard";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import { Filters } from "./App";
+import { lazy, useState } from "react";
+import type { Filters } from "./App";
+import type { TaskData } from "./AddTaskCard";
+
+const AddTaskCard = lazy(() => import("./AddTaskCard"));
+const Card = lazy(() => import("antd/es/card"));
+const Checkbox = lazy(() => import("antd/es/checkbox"));
+const DeleteOutlined = lazy(() => import("@ant-design/icons/DeleteOutlined"));
+const EditOutlined = lazy(() => import("@ant-design/icons/EditOutlined"));
 
 interface TaskCard {
 	onSubmit: (taskData: TaskData) => void;
