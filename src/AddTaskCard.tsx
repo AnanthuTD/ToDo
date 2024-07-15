@@ -36,9 +36,6 @@ function AddTaskCard({
 		if (submitRef?.current) submitRef.current.disabled = !name.trim();
 	}
 
-	// initially to calculate button disabled or not if task is given as props ( Editing )
-	computeButtonState(task.name);
-
 	const getNameValue = (): string => {
 		return nameRef.current?.input?.value?.trim() || "";
 	};
