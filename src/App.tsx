@@ -1,5 +1,5 @@
 import { Button, Divider } from "antd";
-import { lazy, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import type { TaskData } from "./AddTaskCard";
 
@@ -31,6 +31,8 @@ function App() {
 	}
 
 	function onSubmit(taskData: TaskData) {
+		console.log('onSubmit', JSON.stringify(taskData));
+		
 		let newList: TaskData[];
 
 		if (taskList.length) {
@@ -71,35 +73,39 @@ function App() {
 					Add Task
 				</Button>
 			) : (
-				<AddTaskCard onClose={onClose} onSubmit={onSubmit} />
+				<Suspense fallback={<div>Loading...</div>}>
+					<AddTaskCard onClose={onClose} onSubmit={onSubmit} />
+				</Suspense>
 			)}
 
 			<Divider> To-Do's </Divider>
 
-			{taskList.length ? (
-				<>
-					{/* filter options */}
-					<div className="mb-3">
-						<RadioGroup
-							onChange={(e) => onFilterChange(e.target.value)}
-							defaultValue={filter}
-						>
-							<Radio value={"all"}>All</Radio>
-							<Radio value={"pending"}>Pending</Radio>
-							<Radio value={"completed"}>Finished</Radio>
-						</RadioGroup>
-					</div>
+			<Suspense fallback={<div>Loading...</div>}>
+				{taskList.length ? (
+					<>
+						{/* filter options */}
+						<div className="mb-3">
+							<RadioGroup
+								onChange={(e) => onFilterChange(e.target.value)}
+								defaultValue={filter}
+							>
+								<Radio value={"all"}>All</Radio>
+								<Radio value={"pending"}>Pending</Radio>
+								<Radio value={"completed"}>Finished</Radio>
+							</RadioGroup>
+						</div>
 
-					{/* todo list */}
-					<ToDoList
-						taskList={taskList}
-						onSubmit={onSubmit}
-						onDeleteTask={onDeleteTask}
-						filter={filter}
-						className="space-y-3"
-					/>
-				</>
-			) : null}
+						{/* todo list */}
+						<ToDoList
+							taskList={taskList}
+							onSubmit={onSubmit}
+							onDeleteTask={onDeleteTask}
+							filter={filter}
+							className="space-y-3"
+						/>
+					</>
+				) : null}
+			</Suspense>
 		</>
 	);
 }

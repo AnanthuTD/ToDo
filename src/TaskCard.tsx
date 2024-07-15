@@ -1,4 +1,4 @@
-import { lazy, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import type { Filters } from "./App";
 import type { TaskData } from "./AddTaskCard";
 
@@ -74,15 +74,19 @@ function TaskCard({ task, onSubmit, onDeleteTask, filter }: TaskCard) {
 
 	if (!shouldDisplayTask) return null;
 
-	return isEditing ? (
-		<AddTaskCard
-			onSubmit={onSubmit}
-			onClose={toggleEdit}
-			task={task}
-			key={"edit:" + task.id}
-		/>
-	) : (
-		taskView
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			{isEditing ? (
+				<AddTaskCard
+					onSubmit={onSubmit}
+					onClose={toggleEdit}
+					task={task}
+					key={"edit:" + task.id}
+				/>
+			) : (
+				taskView
+			)}
+		</Suspense>
 	);
 }
 
