@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import type { Filters } from "./App";
-import type { TaskData } from "./AddTaskCard";
+import { deleteTask, TaskType, toggleTask } from "./features/TaskSlice";
+import { useAppDispatch } from "./app/hooks";
 
 const AddTaskCard = lazy(() => import("./AddTaskCard"));
 const Card = lazy(() => import("antd/es/card"));
@@ -9,32 +10,32 @@ const DeleteOutlined = lazy(() => import("@ant-design/icons/DeleteOutlined"));
 const EditOutlined = lazy(() => import("@ant-design/icons/EditOutlined"));
 
 interface TaskCard {
-	onSubmit: (taskData: TaskData) => void;
-	task: TaskData;
-	onDeleteTask: (taskId: number) => void;
+	task: TaskType;
 	filter: Filters;
 }
 
-function TaskCard({ task, onSubmit, onDeleteTask, filter }: TaskCard) {
+function TaskCard({ task, filter }: TaskCard) {
 	const [isEditing, setIsEditing] = useState(false);
+	const dispatch = useAppDispatch();
 
 	const toggleEdit = () => {
 		setIsEditing(!isEditing);
 	};
 
-	function handleChecked(checked: boolean) {
-		task.done = checked;
-		onSubmit(task);
+	function handleChecked() {
+		dispatch(toggleTask(task));
 	}
 
-	const handleDeleteTask = onDeleteTask.bind(null, task.id);
+	function handleDeleteTask() {
+		dispatch(deleteTask(task));
+	}
 
 	const taskView = (
 		<Card className="group">
 			<div className="flex justify-between">
 				<div className="flex items-start gap-2">
 					<Checkbox
-						onChange={(e) => handleChecked(e.target.checked)}
+						onChange={handleChecked}
 						defaultChecked={task.done}
 					/>
 					<div>
@@ -78,7 +79,6 @@ function TaskCard({ task, onSubmit, onDeleteTask, filter }: TaskCard) {
 		<Suspense fallback={<div>Loading...</div>}>
 			{isEditing ? (
 				<AddTaskCard
-					onSubmit={onSubmit}
 					onClose={toggleEdit}
 					task={task}
 					key={"edit:" + task.id}

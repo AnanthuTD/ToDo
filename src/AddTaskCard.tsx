@@ -1,35 +1,27 @@
 import { CloseOutlined, SendOutlined } from "@ant-design/icons";
 import { Button, Card, Input, InputRef } from "antd";
 import { useRef, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { addTask, editTask, TaskType } from "./features/TaskSlice";
 
 export interface AddTaskCard {
 	onClose: () => void;
-	onSubmit: (taskData: TaskData) => void;
-	task?: TaskData;
+	task?: TaskType | TaskTypeWithOptionalId;
 }
+type TaskTypeWithOptionalId = Omit<TaskType, "id"> &
+	Partial<Pick<TaskType, "id">>;
 
-export interface TaskData {
-	name: string;
-	description: string;
-	id: number;
-	done: boolean;
-}
-
-const defaultTaskData: TaskData = {
+const defaultTaskData: TaskTypeWithOptionalId = {
 	name: "",
 	description: "",
-	id: Date.now(),
 	done: false,
 };
 
-function AddTaskCard({
-	onClose,
-	onSubmit,
-	task = defaultTaskData,
-}: AddTaskCard) {
+function AddTaskCard({ onClose, task = defaultTaskData }: AddTaskCard) {
 	const [isSubmitDisabled, setIsSubmitDisabled] = useState(!task.name.trim());
 	const nameRef = useRef<InputRef>(null);
 	const descriptionRef = useRef<InputRef>(null);
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		// Set initial state of the button based on the task name
@@ -45,12 +37,19 @@ function AddTaskCard({
 	};
 
 	function handleSubmit() {
-		const taskData: TaskData = {
+		const taskData: TaskTypeWithOptionalId = {
 			...task,
 			name: getNameValue(),
 			description: getDescriptionValue(),
 		};
-		onSubmit(taskData);
+
+		if (!task.id) {
+			// Add new task
+			dispatch(addTask(taskData as TaskType));
+		} else {
+			// Edit existing task
+			dispatch(editTask(taskData as TaskType));
+		}
 
 		// close after submit
 		onClose();
@@ -71,7 +70,7 @@ function AddTaskCard({
 					danger
 					type="primary"
 					onClick={handleSubmit}
-					disabled={isSubmitDisabled} // Updated to use state
+					disabled={isSubmitDisabled}
 				>
 					<SendOutlined />
 				</Button>,

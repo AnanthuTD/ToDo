@@ -1,28 +1,18 @@
-import { TaskData } from "./AddTaskCard";
 import { Filters } from "./App";
+import { useAppSelector } from "./app/hooks";
 import TaskCard from "./TaskCard";
 
 export interface ToDoList {
-	onSubmit: (taskData: TaskData) => void;
-	taskList: TaskData[];
-	onDeleteTask: (taskId: number) => void;
 	filter: Filters;
 	className?: string;
 }
 
-function ToDoList({ taskList, onSubmit, onDeleteTask, filter, className="" }: ToDoList) {
+function ToDoList({ filter, className = "" }: ToDoList) {
+	const taskList = useAppSelector((state) => state.TaskSlice);
 	return (
 		<div className={className}>
 			{taskList.map((task) => {
-				return (
-					<TaskCard
-						task={task}
-						onSubmit={onSubmit}
-						key={task.id}
-						onDeleteTask={onDeleteTask}
-						filter={filter}
-					/>
-				);
+				return <TaskCard task={task} key={task.id} filter={filter} />;
 			})}
 		</div>
 	);

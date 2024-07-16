@@ -1,7 +1,7 @@
-import { Button, Divider } from "antd";
 import { lazy, Suspense, useState } from "react";
+import { Button, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import type { TaskData } from "./AddTaskCard";
+import { useAppSelector } from "./app/hooks";
 
 const AddTaskCard = lazy(() => import("./AddTaskCard"));
 const ToDoList = lazy(() => import("./ToDoList"));
@@ -14,42 +14,10 @@ function App() {
 	const [addTaskClicked, setAddTaskClicked] = useState(false);
 	const [filter, setFilter] = useState<Filters>("all");
 
-	const initialTaskList: TaskData[] = JSON.parse(
-		localStorage.getItem("taskList") || "[]"
-	);
-
-	const [taskList, setTaskList] = useState<TaskData[]>(initialTaskList);
+	const taskList = useAppSelector((state)=> state.TaskSlice);
 
 	function onClose() {
 		setAddTaskClicked(false);
-	}
-
-	function onDeleteTask(taskId: number) {
-		const newList = taskList.filter((task) => task.id !== taskId);
-		localStorage.setItem("taskList", JSON.stringify(newList));
-		setTaskList(newList);
-	}
-
-	function onSubmit(taskData: TaskData) {
-		console.log('onSubmit', JSON.stringify(taskData));
-		
-		let newList: TaskData[];
-
-		if (taskList.length) {
-			if (taskList.some((task) => task.id === taskData.id)) {
-				newList = taskList.map((task) =>
-					task.id === taskData.id ? taskData : task
-				);
-			} else {
-				newList = [...taskList, taskData];
-			}
-		} else {
-			newList = [taskData];
-		}
-
-		localStorage.setItem("taskList", JSON.stringify(newList));
-
-		setTaskList(newList);
 	}
 
 	function onFilterChange(filter: Filters) {
@@ -74,7 +42,7 @@ function App() {
 				</Button>
 			) : (
 				<Suspense fallback={<div>Loading...</div>}>
-					<AddTaskCard onClose={onClose} onSubmit={onSubmit} />
+					<AddTaskCard onClose={onClose} />
 				</Suspense>
 			)}
 
@@ -97,9 +65,6 @@ function App() {
 
 						{/* todo list */}
 						<ToDoList
-							taskList={taskList}
-							onSubmit={onSubmit}
-							onDeleteTask={onDeleteTask}
 							filter={filter}
 							className="space-y-3"
 						/>
